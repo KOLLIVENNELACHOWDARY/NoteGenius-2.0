@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 def _keywords(text, top_n=5):
     try:
-        ensure_nltk("stopwords", "punkt", "punkt_tab")
+        ensure_nltk("stopwords", "punkt_tab")
         from rake_nltk import Rake
 
         rake = Rake(max_length=3)
