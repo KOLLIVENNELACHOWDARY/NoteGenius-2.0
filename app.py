@@ -91,7 +91,10 @@ def _load_secret_key(app):
 
 def create_app(test_config=None):
     app = Flask(__name__)
-    data_dir = os.environ.get("DATA_DIR", os.path.join(app.root_path, "instance"))
+    on_vercel = bool(os.environ.get("VERCEL"))  # Vercel's project folder is read-only; only /tmp can be written
+    if on_vercel:
+        os.environ.setdefault("NLTK_DATA", "/tmp/nltk_data")
+    data_dir = os.environ.get("DATA_DIR") or ("/tmp/notegenius" if on_vercel else os.path.join(app.root_path, "instance"))
     app.config.update(
         DATA_DIR=data_dir,
         MAX_CONTENT_LENGTH=_clamp(os.environ.get("MAX_UPLOAD_MB"), 15, 1, 100) * 1024 * 1024,
