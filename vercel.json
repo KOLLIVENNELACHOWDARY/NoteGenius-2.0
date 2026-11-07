@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "app.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{tests/**,deploy/**,vercel-proxy/**,docs/**,*.md,venv/**,.git/**}"
+    }
+  }
+}
