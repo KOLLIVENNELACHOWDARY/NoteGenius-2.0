@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, back %}
+{% block title %}Practice questions{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Practice questions</h1>
+<p class="lede">Exam-style questions with marks. Write your answer first, then open the model answer.</p>
+<form method="post" class="row" data-busy="Writing questions...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div><label for="num_questions">How many questions</label><input id="num_questions" type="number" name="num_questions" min="1" max="30" value="{{ count }}"></div>
+  <div><button class="btn" type="submit">{{ 'Make new questions' if questions else 'Make questions' }}</button></div>
+</form>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if questions %}
+<p class="muted">Total: {{ questions | sum(attribute='marks') }} marks.</p>
+<ol class="qlist">
+  {% for q in questions %}
+  <li>
+    <p class="q"><span class="badge">{{ q.type | capitalize }}</span> {{ q.question }} <span class="marks">[{{ q.marks }} marks]</span></p>
+    {% if q.tex %}<p class="feq">{{ tex(q.tex, '', True) }}</p>{% endif %}
+    <details><summary>Model answer</summary><p>{{ q.answer }}</p>{% if q.section %}<p class="muted small">From: {{ q.section }}</p>{% endif %}</details>
+  </li>
+  {% endfor %}
+</ol>
+{% endif %}
+{% endblock %}

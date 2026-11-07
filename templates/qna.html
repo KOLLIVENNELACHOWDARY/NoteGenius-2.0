@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, back %}
+{% block title %}Ask your notes{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Ask your notes</h1>
+<p class="lede">Type one question per line (up to 10). Try "define speed", "formula for kinetic energy" or "what is the unit of force". Answers come only from your notes.</p>
+<form method="post" data-busy="Finding answers...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="questions">Questions</label>
+  <textarea id="questions" name="questions" required placeholder="What is the formula for kinetic energy?">{{ questions }}</textarea>
+  <div class="actions"><button class="btn" type="submit">Get answers</button></div>
+</form>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if results %}
+<ol class="qlist">
+  {% for r in results %}
+  <li>
+    <p class="q">{{ r.question }}</p>
+    {% if r.tex and r.kind == 'formula' %}<p class="feq">{{ tex(r.tex, r.answer, True) }}</p>
+    {% else %}<p>{{ r.answer }}</p>{% if r.get("items") %}<ul class="keypts">{% for i in r["items"] %}<li>{{ i }}</li>{% endfor %}</ul>{% endif %}{% if r.tex %}<p class="feq">{{ tex(r.tex, r.raw, True) }}</p>{% endif %}{% endif %}
+    {% if r.hint %}<p class="muted small">Your notes cover: {{ r.hint | join(", ") }}. Try asking about one of these.</p>{% endif %}
+    {% if r.extra %}<p class="muted small">{{ r.extra }}</p>{% endif %}
+    {% if r.source %}<p class="muted small">From: {{ r.source }}</p>{% endif %}
+    {% if r.support %}<details><summary>Related passages</summary><ul class="plain">{% for s in r.support %}<li>{{ s }}</li>{% endfor %}</ul></details>{% endif %}
+  </li>
+  {% endfor %}
+</ol>
+{% if results[0].method == 'search' %}<p class="muted small">Answers are the best-matching parts of your notes. Install the optional answer model for sentence-level answers.</p>{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back, tex %}
+{% block title %}Mind map{% endblock %}
+{% macro branch(n) %}
+<li class="mm-li k-{{ n.kind }}{{ ' collapsed' if n.collapsed }}"{% if n.kind == 'section' %} style="--c: {{ n.color }}; --t: {{ n.tint }}"{% endif %}>
+  {% if n.kind == 'root' %}
+    <div class="mm-box mm-root">{{ n.title }}</div>
+  {% elif n.kind == 'section' %}
+    <div class="mm-box mm-section d{{ n.depth }}">
+      <span>{{ n.title }}</span>
+      {% if n.children %}<button type="button" class="mm-toggle" aria-label="Show or hide details of {{ n.title }}" aria-expanded="{{ 'false' if n.collapsed else 'true' }}">{{ n.children | length }}</button>{% endif %}
+    </div>
+  {% elif n.kind == 'def' %}
+    <div class="mm-box mm-def"><strong>{{ n.term }}</strong><span>{{ n.meaning }}</span></div>
+  {% elif n.kind == 'formula' %}
+    <div class="mm-box mm-formula">{% if n.name %}<small>{{ n.name }}</small>{% endif %}<span class="mm-eq">{{ tex(n.latex, n.raw, False) }}</span></div>
+  {% elif n.kind == 'table' %}
+    <div class="mm-box mm-table">{% if n.caption %}<small>{{ n.caption }}</small>{% endif %}
+      <table><thead><tr>{% for c in n.header %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for r in n.rows %}<tr>{% for c in r %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+      {% if n.more %}<small>+ {{ n.more }} more rows</small>{% endif %}</div>
+  {% else %}
+    <div class="mm-box mm-point">{{ n.text }}</div>
+  {% endif %}
+  {% if n.children and n.kind != 'root' %}<ul>{% for c in n.children %}{{ branch(c) }}{% endfor %}</ul>{% endif %}
+</li>
+{% endmacro %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Mind map</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if tree %}
+<p class="lede">The whole map fits on the screen. Click a coloured section to open or close its details, drag to move around, and use the buttons to zoom.</p>
+<div class="mm-bar noprint" role="toolbar" aria-label="Mind map controls">
+  <div class="mm-chips" role="group" aria-label="Show">
+    <button type="button" class="chip on" data-branch="all">Whole map</button>
+    {% for b in tree.children %}<button type="button" class="chip" data-branch="{{ loop.index0 }}" style="--c: {{ b.color }}">{{ b.title }}</button>{% endfor %}
+  </div>
+  <div class="mm-tools">
+    <button type="button" class="btn quiet small-btn" data-act="out" aria-label="Zoom out">&minus;</button>
+    <button type="button" class="btn quiet small-btn" data-act="fit">Fit to screen</button>
+    <button type="button" class="btn quiet small-btn" data-act="in" aria-label="Zoom in">+</button>
+    <button type="button" class="btn quiet small-btn" data-act="expand">Open all</button>
+    <button type="button" class="btn quiet small-btn" data-act="collapse">Close all</button>
+    <button type="button" class="btn quiet small-btn" data-act="full">Full screen</button>
+  </div>
+</div>
+<div class="mm-viewport" id="mm-viewport" tabindex="0" aria-label="Mind map">
+  <div class="mm-sizer" id="mm-sizer">
+    <div class="mm-canvas" id="mm-canvas">
+      <ul class="mm mm-rootlist"><li class="mm-li k-root">
+        <div class="mm-box mm-root">{{ tree.title }}</div>
+        <ul class="mm-branches">{% for c in tree.children %}{{ branch(c) }}{% endfor %}</ul>
+      </li></ul>
+    </div>
+  </div>
+</div>
+<ul class="legend" aria-label="Legend">
+  <li><span class="sw sw-term"></span> Key term</li><li><span class="sw sw-formula"></span> Formula</li><li><span class="sw sw-point"></span> Key point</li><li><span class="sw sw-table"></span> Table</li>
+</ul>
+<p class="actions noprint"><a class="btn quiet" href="{{ url_for('mindmap_image') }}">Download as picture</a><button type="button" class="btn quiet" data-print>Print</button></p>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/mindmap.js') }}" defer></script>{% endblock %}

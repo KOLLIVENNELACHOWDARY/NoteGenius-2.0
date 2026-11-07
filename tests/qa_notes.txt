@@ -1,0 +1,22 @@
+# Motion
+Speed is defined as the distance travelled per unit time. Velocity is speed in a given direction. Acceleration is the rate of change of velocity with time.
+v = u + at
+s = ut + (1/2)at^2
+where v = final velocity, u = initial velocity, a = acceleration, t = time
+
+# Newton's Laws
+Newton's first law states that an object stays at rest or in uniform motion unless acted on by a net force. Newton's second law states that force equals mass times acceleration.
+F = ma
+Newton's third law states that every action has an equal and opposite reaction.
+
+# Energy
+Kinetic energy is the energy possessed by a body due to its motion. Potential energy is the energy stored in a body because of its position.
+KE = (1/2)mv^2
+PE = mgh
+The law of conservation of energy states that energy can neither be created nor destroyed, only converted from one form to another.
+
+| Quantity | Unit | Symbol |
+| --- | --- | --- |
+| Force | newton | N |
+| Energy | joule | J |
+| Power | watt | W |

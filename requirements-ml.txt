@@ -1,0 +1,7 @@
+# Optional: neural models for better question answering, keyword mnemonics and summaries.
+# Needs roughly 2 GB of RAM. The app works without these (it falls back automatically).
+-r requirements.txt
+torch>=2.2
+transformers>=4.44,<5
+sentence-transformers>=3.0
+keybert>=0.8.5

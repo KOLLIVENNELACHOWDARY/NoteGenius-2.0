@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Operations{% endblock %}
+{% block content %}
+{% set icons = {"overview": "🔍", "summary": "📝", "mindmap": "🧠", "ppt": "📊", "flashcards": "🗂️", "formulas": "🧮", "glossary": "📖",
+                "mnemonic": "💡", "tts": "🔊", "mcq": "✅", "qgen": "📋", "qna": "❓", "studyplan": "🗓️", "cheatsheet": "📄", "suggestions": "🔗", "sources": "📚", "chat": "💬", "audio_overview": "🎧", "briefing": "📰", "studyguide": "🎓", "faq": "🙋", "timeline": "⏳"} %}
+<section class="hero">
+  <h1>{{ title if title != 'Study notes' else 'Operations' }}</h1>
+  <p class="lede">Your notes are ready. Choose what you want to make.</p>
+  <ul class="stats center">
+    <li><strong>{{ stats.sections }}</strong> sections</li>
+    <li><strong>{{ stats.definitions }}</strong> key terms</li>
+    <li><strong>{{ stats.formulas }}</strong> formulas</li>
+    <li><strong>{{ stats.tables }}</strong> tables</li>
+    {% if stats.code %}<li><strong>{{ stats.code }}</strong> code {{ 'block' if stats.code == 1 else 'blocks' }}</li>{% endif %}
+    <li>about <strong>{{ minutes }}</strong> min read</li>
+  </ul>
+</section>
+{% if stats.words < 60 %}<p class="flash info">These notes are short, so some tools may return little. Longer notes work best.</p>{% endif %}
+{% if not stats.formulas and not stats.definitions and not stats.tables %}<p class="flash info">No formulas, definitions or tables were detected. Check the <a href="{{ url_for('overview') }}">overview</a>. Headings, "-" bullets, "Term: meaning" lines and <code>|</code> tables help.</p>{% endif %}
+{% set ns = namespace(i=0) %}
+{% for heading, items in tools %}
+<section class="group">
+  <h2>{{ heading }}</h2>
+  <ul class="toolrow">
+    {% for endpoint, name, blurb in items %}
+    {% set ns.i = ns.i + 1 %}
+    <li><a class="pill g{{ (ns.i - 1) % 9 + 1 }}" href="{{ url_for(endpoint) }}"><span class="ico" aria-hidden="true">{{ icons.get(endpoint, "✨") }}</span>{{ name }}</a><span class="blurb">{{ blurb }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+<p class="center"><a class="btn quiet" href="{{ url_for('index') }}">Go back</a></p>
+{% endblock %}

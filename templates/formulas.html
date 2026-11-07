@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, variables, back %}
+{% block title %}Formula sheet{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Formula sheet</h1>
+{% if not doc.formulas %}
+<p class="flash info">No formulas were found. Write them on their own line (for example <code>v = u + at</code>) or inside <code>$...$</code>. Check the <a href="{{ url_for('overview') }}">overview</a>.</p>
+{% else %}
+<p class="lede">{{ doc.formulas | length }} formulas, grouped by section. <button class="btn quiet small-btn" type="button" data-print>Print this page</button></p>
+{% for section, items in doc.formulas | groupby('section') %}
+<h2>{{ section or 'Notes' }}</h2>
+<div class="formula-grid">
+  {% for f in items %}
+  <div class="fcard">
+    {% if f.name %}<p class="fname">{{ f.name }}</p>{% endif %}
+    <p class="feq">{{ tex(f.latex, f.raw, True) }}</p>
+    {{ variables(f) }}
+    <button class="copy" type="button" data-copy="{{ f.latex or f.raw }}">Copy LaTeX</button>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

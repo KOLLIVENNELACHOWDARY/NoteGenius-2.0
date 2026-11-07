@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Study resources{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Study resources</h1>
+<p class="lede">The main topics in your notes, each with ready-made links to videos, explanations, diagrams and practice questions.</p>
+{% if found.topics %}
+<div class="rgrid">
+  {% for t in found.topics %}
+  <section class="rcard">
+    <p class="rkind">{{ {'section': 'Topic', 'term': 'Key term', 'formula': 'Formula', 'keyword': 'Keyword'}[t.kind] }}</p>
+    <h2>{{ t.name }}</h2>
+    <div class="rlinks">
+      {% for label, url in t.links %}<a class="rlink {{ 'main' if loop.first }}" href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ label }}</a>{% endfor %}
+    </div>
+    {% if videos.get(t.name) %}
+    <ul class="plain rvids">{% for title, url in videos[t.name] %}<li><a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ title }}</a></li>{% endfor %}</ul>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
+<form method="post" data-busy="Loading video titles..." class="actions center">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn quiet" type="submit">Also list video titles for the top topics</button>
+</form>
+<p class="muted small center">Links open in a new tab. Titles are fetched from YouTube and may not load on every network.</p>
+{% else %}
+<p class="muted">No clear topics were found. Add notes with headings or defined terms and try again.</p>
+{% endif %}
+{% endblock %}

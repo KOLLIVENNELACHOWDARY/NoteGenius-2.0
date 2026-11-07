@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, back %}
+{% block title %}Chat with your notes{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Chat with your notes</h1>
+<p class="lede">Ask anything about your {{ 'sources' if multi else 'notes' }}. Each answer is taken from your own text and shows where it came from. If it is not in your sources, the chat says so.</p>
+<div class="chat" aria-live="polite">
+  {% for m in history %}
+  <div class="bubble me">{{ m.q }}</div>
+  <div class="bubble bot"{% if loop.last %} id="latest"{% endif %}>
+    {% if m.tex %}<p class="feq">{{ tex(m.tex, m.a, True) }}{% if m.n %}<sup class="cite">[{{ m.n }}]</sup>{% endif %}</p>
+    {% else %}<p>{{ m.a }}{% if m.n %}<sup class="cite">[{{ m.n }}]</sup>{% endif %}</p>{% if m.get("items") %}<ul class="plain keypts">{% for i in m["items"] %}<li>{{ i }}</li>{% endfor %}</ul>{% endif %}{% if m.tex2 %}<p class="feq">{{ tex(m.tex2, m.raw2, True) }}</p>{% endif %}{% endif %}
+    {% if m.extra %}<p class="muted small">{{ m.extra }}</p>{% endif %}
+    {% for a in m.also %}<p class="also"><sup class="cite">[{{ a.n }}]</sup> {{ a.text }}</p>{% endfor %}
+    {% if m.cites %}
+    <details><summary>{{ m.cites | length }} source passage{{ '' if m.cites | length == 1 else 's' }}</summary>
+      <ol class="cites">{% for c in m.cites %}<li value="{{ c.n }}"><strong>{{ c.source ~ ' › ' if c.source }}{{ c.section }}</strong><br><span class="muted">{{ c.text }}</span></li>{% endfor %}</ol>
+    </details>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="muted">No questions yet. Try one of these:</p>
+  {% endfor %}
+</div>
+{% if suggestions %}<p class="chips-line">{% for q in suggestions %}<a class="topic ask" href="{{ url_for('chat', q=q) }}">{{ q }}</a>{% endfor %}</p>{% endif %}
+<form method="post" class="askbar" data-busy="Looking...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label class="sr" for="question">Your question</label>
+  <input id="question" name="question" type="text" maxlength="300" required autocomplete="off" value="{{ prefill }}" placeholder="Ask about your notes, e.g. What is speed?">
+  <button class="btn" type="submit">Ask</button>
+</form>
+{% if history %}<form method="post" class="center"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn quiet small-btn" name="action" value="clear" type="submit">Clear chat</button></form>{% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Audio overview{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Audio overview</h1>
+<p class="lede">Two hosts talk through the main ideas, using only what your notes say. Press play to listen in your browser right now, or make an MP3 to download.</p>
+<form method="get" class="row noprint">
+  <div><label for="length">Length</label>
+    <select id="length" name="length" data-autosubmit><option value="short" {{ 'selected' if length == 'short' }}>Short (3 topics)</option><option value="long" {{ 'selected' if length == 'long' }}>Long (6 topics)</option></select></div>
+</form>
+<div class="player noprint" id="player" data-turns="{{ turns | length }}">
+  <button class="btn" type="button" id="play">▶ Listen in your browser</button>
+  <button class="btn quiet" type="button" id="stop" hidden>■ Stop</button>
+  <label class="inl" for="rate">Speed</label>
+  <select id="rate"><option value="0.9">Slower</option><option value="1" selected>Normal</option><option value="1.2">Faster</option></select>
+  <span class="muted small" id="nosupport" hidden>Your browser cannot speak text. Make an MP3 instead.</span>
+</div>
+<ol class="transcript">
+  {% for t in turns %}<li class="turn {{ 'a' if t.who == 'A' else 'b' }}" data-who="{{ t.who }}"><span class="who">{{ t.name }}</span><span class="say">{{ t.text }}</span></li>{% endfor %}
+</ol>
+<form method="post" class="noprint" data-busy="Making the MP3 (this can take a minute)...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="length" value="{{ length }}">
+  <div class="row"><div><label for="lang">Language of the notes</label>
+    <select id="lang" name="lang">{% for code, name in languages.items() %}<option value="{{ code }}" {{ 'selected' if code == lang }}>{{ name }}</option>{% endfor %}</select></div></div>
+  <button class="btn quiet" type="submit">Make MP3</button>
+</form>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if filename %}
+<audio class="audio" controls src="{{ url_for('download', name=filename) }}"></audio>
+<a class="btn quiet" href="{{ url_for('download', name=filename) }}" download="audio-overview.mp3">Download MP3</a>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/audio.js') }}" defer></script>{% endblock %}

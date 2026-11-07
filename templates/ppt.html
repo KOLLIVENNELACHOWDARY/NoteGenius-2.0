@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Slides{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Slides</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if filename %}
+<p class="lede">Your deck has {{ slides }} slides.</p>
+<div class="actions"><a class="btn" href="{{ url_for('download', name=filename) }}">Download PowerPoint</a></div>
+<h2>What is inside</h2>
+<ul class="plain">
+  <li>A title slide and an outline.</li>
+  <li>For each section: key points, key terms, and any notes or examples.</li>
+  {% if stats.formulas %}<li>{{ stats.formulas }} formulas typeset as equations, with what each symbol means, plus a formula sheet.</li>{% endif %}
+  {% if stats.tables %}<li>{{ stats.tables }} tables as real PowerPoint tables you can edit.</li>{% endif %}
+  <li>Key takeaways and a short self-test. Speaker notes hold the source text for each slide.</li>
+</ul>
+<p class="muted">The link works for about an hour. Open the file in PowerPoint to adjust the design.</p>
+{% endif %}
+{% endblock %}

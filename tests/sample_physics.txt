@@ -1,0 +1,40 @@
+Physics Notes
+
+1. Motion in a Straight Line
+
+Motion is the change in position of an object with time. Speed is defined as the distance travelled per unit time. Velocity is speed in a given direction.
+
+Equations of motion
+For uniformly accelerated motion the following three equations hold:
+v = u + at
+s = ut + ½at²
+v² = u² + 2as
+where v = final velocity, u = initial velocity, a = acceleration, t = time and s = displacement.
+
+Newton's second law states that F = ma, where F is the net force and m is the mass.
+
+Quantity    Symbol    SI Unit
+Force    F    newton (N)
+Mass    m    kilogram (kg)
+Velocity    v    metre per second (m/s)
+
+Important: Acceleration is the rate of change of velocity.
+
+2. Work, Energy and Power
+
+Work done W = F × d × cos θ. Kinetic energy is the energy possessed by a body due to its motion.
+Formula: Kinetic energy: KE = 1/2 m v^2
+Potential energy: PE = mgh
+
+Types of energy:
+- Kinetic energy
+- Potential energy
+- Thermal energy
+
+| Unit | Quantity | Formula |
+|------|----------|---------|
+| Joule | Energy | F × d |
+| Watt | Power | W / t |
+
+Chemistry
+Photosynthesis: 6CO2 + 6H2O -> C6H12O6 + 6O2

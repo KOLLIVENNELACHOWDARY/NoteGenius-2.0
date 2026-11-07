@@ -1,0 +1,19 @@
+# Core web app + classic NLP. Enough for every tool (heavier ML models are optional).
+Flask>=3.0,<4
+gunicorn>=22.0
+nltk>=3.9
+rake-nltk>=1.0.6
+scikit-learn>=1.4
+numpy>=1.26
+rapidfuzz>=3.0
+pdfplumber>=0.11
+pytesseract>=0.3.10
+Pillow>=10.0
+python-docx>=1.1
+python-pptx>=1.0
+lxml>=5.0
+matplotlib>=3.8
+graphviz>=0.20
+gTTS>=2.5
+youtube-search>=2.1
+requests>=2.31

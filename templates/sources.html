@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Sources{% endblock %}
+{% block content %}
+{{ back(url_for('operations') if items else url_for('index')) }}
+<h1>Sources</h1>
+<p class="lede">Add several sources to one notebook. Every tool works on the sources that are switched on, and answers always say which source they came from. {{ active }} of {{ items | length }} on.</p>
+
+{% if items %}
+<div class="srclist">
+  {% for x in items %}
+  {% set g = guides[x.id] %}
+  <article class="srccard{{ ' off' if not x.on }}">
+    <header>
+      <h2>{{ x.name }}</h2>
+      <span class="muted small">{{ "{:,}".format(x.words) }} words</span>
+      <form method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="id" value="{{ x.id }}">
+        <button class="btn quiet small-btn" name="action" value="toggle" type="submit">{{ 'Switch off' if x.on else 'Switch on' }}</button>
+        <button class="btn quiet small-btn" name="action" value="remove" type="submit">Remove</button>
+      </form>
+    </header>
+    {% if g %}
+    <div class="srcguide">
+      <h3>Source guide</h3>
+      {% if g.summary %}<ul class="plain tight">{% for s in g.summary %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+      {% if g.topics %}<p class="chips-line">{% for t in g.topics %}<span class="topic">{{ t }}</span>{% endfor %}</p>{% endif %}
+      {% if g.questions %}<p class="muted small">Ask about it:</p>
+      <p class="chips-line">{% for q in g.questions %}<a class="topic ask" href="{{ url_for('chat', q=q) }}">{{ q }}</a>{% endfor %}</p>{% endif %}
+    </div>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="flash info">No sources yet. Add notes or a file below.</p>
+{% endif %}
+
+{% if items | length < max_sources %}
+<h2>Add a source</h2>
+<div class="split">
+  <form class="panel" method="post" action="{{ url_for('text_input') }}" data-busy="Adding...">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="add" value="1">
+    <h3 class="panel-title">✍️ Paste notes</h3>
+    <label class="sr" for="src_name">Name</label>
+    <input id="src_name" name="name" type="text" maxlength="80" placeholder="Name (optional)" class="textin">
+    <label class="sr" for="src_text">Notes</label>
+    <textarea id="src_text" name="input_text" required minlength="20" placeholder="Paste text here"></textarea>
+    <div class="actions"><button class="btn" type="submit">Add source</button></div>
+  </form>
+  <form class="panel" method="post" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" data-busy="Reading file...">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="add" value="1">
+    <h3 class="panel-title">📎 Upload a file</h3>
+    <label class="sr" for="src_file">File</label>
+    <input id="src_file" type="file" name="uploaded_file" required accept=".pdf,.docx,.pptx,.txt,.md,.png,.jpg,.jpeg">
+    <p class="muted small">Accepted: {{ allowed | join(", ") }}. Up to {{ max_mb }} MB.</p>
+    <div class="actions"><button class="btn" type="submit">Add source</button></div>
+  </form>
+</div>
+{% endif %}
+{% if items %}
+<form method="post" class="center" onsubmit="return confirm('Remove all sources?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn quiet" name="action" value="clear" type="submit">Remove all sources</button></form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, table, back %}
+{% block title %}Cheat sheet{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Cheat sheet</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if result %}
+<p class="lede noprint">A one-page revision sheet. <button class="btn quiet small-btn" type="button" data-print>Print or save as PDF</button></p>
+<article class="sheet">
+  <h2 class="sheet-title">{{ result.title }}</h2>
+  {% if result.formulas %}
+  <section><h3>Formulas</h3>
+    <ul class="sheet-formulas">{% for f in result.formulas[:24] %}<li>{% if f.name %}<span class="fname">{{ f.name }}</span>{% endif %}{{ tex(f.latex, f.raw) }}{% if f.used_variables %}<span class="where"> where {% for s, m in f.used_variables %}{{ s }} = {{ m }}{{ ', ' if not loop.last }}{% endfor %}</span>{% endif %}</li>{% endfor %}</ul>
+  </section>{% endif %}
+  {% if result.definitions %}
+  <section><h3>Key terms</h3>
+    <dl class="terms tight">{% for d in result.definitions[:30] %}<div><dt>{{ d.term }}</dt><dd>{{ d.meaning }}</dd></div>{% endfor %}</dl>
+  </section>{% endif %}
+  {% for sec in result.sections %}{% if sec.points %}
+  <section><h3>{{ sec.title }}</h3><ul class="plain tight">{% for p in sec.points %}<li>{{ p }}</li>{% endfor %}</ul></section>
+  {% endif %}{% endfor %}
+  {% for t in result.tables[:4] %}<section>{{ table(t, True) }}</section>{% endfor %}
+</article>
+{% endif %}
+{% endblock %}

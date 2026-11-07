@@ -1,0 +1,13 @@
+.git
+.github
+vercel-proxy
+deploy
+tests
+legacy
+__pycache__
+*.pyc
+.pytest_cache
+instance
+venv
+.venv
+.env

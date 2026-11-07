@@ -1,0 +1,21 @@
+{% macro tex(latex, raw, display=False) -%}
+<span class="tex" data-tex="{{ latex or '' }}"{% if display %} data-display="1"{% endif %}>{{ raw }}</span>
+{%- endmacro %}
+
+{% macro table(t, compact=False) -%}
+<div class="tablewrap{{ ' compact' if compact }}">
+  {% if t.caption or t.section %}<p class="caption">{{ t.caption or t.section }}</p>{% endif %}
+  <table>
+    <thead><tr>{% for c in t.header %}<th scope="col">{{ c }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for r in t.body %}<tr>{% for c in r %}{% if loop.first %}<th scope="row">{{ c }}</th>{% else %}<td>{{ c }}</td>{% endif %}{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+</div>
+{%- endmacro %}
+
+{% macro variables(f) -%}
+{% if f.used_variables %}<dl class="vars">{% for sym, meaning in f.used_variables %}<div><dt><span class="tex" data-tex="{{ sym }}">{{ sym }}</span></dt><dd>{{ meaning }}</dd></div>{% endfor %}</dl>{% endif %}
+{%- endmacro %}
+
+{% macro back(url, label='Back to operations') -%}
+<a class="back" href="{{ url }}">{{ label }}</a>
+{%- endmacro %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Study plan{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Study plan</h1>
+<p class="lede">Tell us how long you have. Sections are spread over the first days, then you revise and test yourself.</p>
+<form method="post" data-busy="Planning...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row">
+    <div><label for="exam">Exam date (optional)</label><input id="exam" type="date" name="exam" min="{{ today }}" value="{{ form.exam }}"></div>
+    <div><label for="days">Or number of days</label><input id="days" type="number" name="days" min="1" max="60" value="{{ form.days }}"></div>
+    <div><label for="minutes">Minutes per day</label><input id="minutes" type="number" name="minutes" min="15" max="600" step="5" value="{{ form.minutes }}"></div>
+  </div>
+  <button class="btn" type="submit">Make my plan</button>
+</form>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if plan %}
+{% if plan.warning %}<div class="flash info" role="status">{{ plan.warning }}</div>{% endif %}
+<p class="muted">Roughly {{ plan.total_minutes }} minutes of study material across {{ plan.sections }} sections.</p>
+<table class="plan">
+  <thead><tr><th scope="col">Day</th><th scope="col">Date</th><th scope="col">Focus</th><th scope="col">What to do</th><th scope="col">Minutes</th></tr></thead>
+  <tbody>
+  {% for d in plan.days %}
+    <tr><th scope="row">{{ d.n }}</th><td>{{ d.date.strftime('%a %d %b') }}</td><td>{{ d.focus }}</td>
+      <td><ul class="plain tight">{% for t in d.tasks %}<li>{{ t }}</li>{% endfor %}</ul></td><td>{{ d.minutes }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="actions noprint"><button class="btn quiet" type="button" data-print>Print plan</button></p>
+{% endif %}
+{% endblock %}

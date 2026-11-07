@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Mnemonics{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Mnemonics</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if sets %}
+<p class="lede">Each set takes the first letters of your own list or key terms. Say the acronym or picture the sentence. Reload for new memory words.</p>
+{% for s in sets %}
+<section class="result">
+  <h2>{{ s.title }}</h2>
+  <p class="big">{{ s.acronym }}{% if not s.acronym_ok %} <span class="muted small">(hard to say, use the sentence)</span>{% endif %}</p>
+  <p class="big sentence">{{ s.sentence }}</p>
+  <table><thead><tr><th scope="col">Item</th><th scope="col">Letter</th><th scope="col">Picture</th></tr></thead>
+  <tbody>{% for item, letter, word in s.pairs %}<tr><td>{{ item }}</td><td>{{ letter }}</td><td>{{ word }}</td></tr>{% endfor %}</tbody></table>
+</section>
+{% endfor %}
+{% endif %}
+{% endblock %}

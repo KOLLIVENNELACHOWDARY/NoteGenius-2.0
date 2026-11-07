@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, table, variables, back %}
+{% block title %}Summary{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Summary</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if result %}
+<form method="get" class="row">
+  <div><label for="level">Detail</label>
+    <select id="level" name="level" data-autosubmit>
+      {% for key, label in [('brief','Brief'),('standard','Standard'),('detailed','Detailed')] %}<option value="{{ key }}" {{ 'selected' if key == level }}>{{ label }}</option>{% endfor %}
+    </select></div>
+  <div><a class="btn quiet" href="{{ url_for('summary_md', level=level) }}">Download as Markdown</a></div>
+</form>
+
+<div class="result"><h2>Overview</h2>
+  <ul class="plain">{% for s in result.overview %}<li>{{ s }}</li>{% endfor %}</ul>
+</div>
+
+{% for sec in result.sections %}
+<section class="sumsec">
+  <h2>{{ sec.title }}</h2>
+  {% if sec.points %}<ul class="plain">{% for p in sec.points %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+  {% if sec.definitions %}<dl class="terms">{% for d in sec.definitions %}<div><dt>{{ d.term }}</dt><dd>{{ d.meaning }}</dd></div>{% endfor %}</dl>{% endif %}
+  {% for f in sec.formulas %}
+    <div class="fcard">{% if f.name %}<p class="fname">{{ f.name }}</p>{% endif %}<p class="feq">{{ tex(f.latex, f.raw, True) }}</p>{{ variables(f) }}</div>
+  {% endfor %}
+  {% for t in sec.tables %}{{ table(t, True) }}{% endfor %}
+  {% for c in sec.code %}<pre class="codeblock"><code>{{ c.text }}</code></pre>{% endfor %}
+</section>
+{% endfor %}
+{% if result.method == 'extractive' %}<p class="muted small">Built from sentences and structures in your notes, so nothing is invented.</p>{% endif %}
+{% endif %}
+{% endblock %}

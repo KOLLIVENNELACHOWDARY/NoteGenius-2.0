@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Listen{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Listen to your notes</h1>
+<p class="lede">Choose what to hear. Formulas are spoken in words, for example "v equals u plus a t". Up to {{ "{:,}".format(limit) }} characters per recording.</p>
+<form method="post" data-busy="Making audio...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row">
+    <div><label for="scope">What to read</label>
+      <select id="scope" name="scope">
+        <option value="summary" {{ 'selected' if scope == 'summary' }}>Summary (key points and formulas)</option>
+        <option value="full" {{ 'selected' if scope == 'full' }}>Full notes (first part)</option>
+        {% for s in sections %}<option value="{{ s }}" {{ 'selected' if scope == s }}>Section: {{ s }}</option>{% endfor %}
+      </select></div>
+    <div><label for="lang">Language of the notes</label>
+      <select id="lang" name="lang">{% for code, name in languages.items() %}<option value="{{ code }}" {{ 'selected' if code == lang }}>{{ name }}</option>{% endfor %}</select></div>
+  </div>
+  <button class="btn" type="submit">Make audio</button>
+</form>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if filename %}
+<audio class="audio" controls src="{{ url_for('download', name=filename) }}"></audio>
+<a class="btn quiet" href="{{ url_for('download', name=filename) }}" download="notes.mp3">Download MP3</a>
+{% if spoken and spoken | length > limit %}<p class="muted">Only the first {{ "{:,}".format(limit) }} characters were read. Pick a single section for the rest.</p>{% endif %}
+<details><summary>Text that was read</summary><p>{{ spoken[:limit] }}</p></details>
+{% endif %}
+{% endblock %}

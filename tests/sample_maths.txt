@@ -1,0 +1,36 @@
+# Mathematics Revision
+
+## Algebra
+A quadratic equation is an equation of the form ax^2 + bx + c = 0.
+The solutions are given by the quadratic formula:
+x = (-b ± sqrt(b^2 - 4ac)) / (2a)
+Discriminant: D = b^2 - 4ac
+The arithmetic progression formula: a_n = a_1 + (n-1)d
+Sum of n terms: S_n = n/2 (2a + (n-1)d)
+Identity: sin²θ + cos²θ = 1
+
+## Calculus
+The derivative of x^n is n x^(n-1). The integral ∫ x^n dx = x^(n+1)/(n+1) + C.
+$$\int_0^1 x^2\,dx = \frac{1}{3}$$
+Area of a circle = πr²
+Circumference = 2πr
+Pythagoras theorem states that a² + b² = c².
+
+## Chemistry
+- Mole concept
+- Ideal gas law
+- Le Chatelier's principle
+Ideal gas equation: PV = nRT
+Rate of reaction = Δ[A]/Δt
+2H2 + O2 -> 2H2O
+pH = -log[H+]
+
+## Economics
+Profit = Total Revenue - Total Cost
+Price Elasticity of Demand = % change in quantity demanded / % change in price
+
+| Market | Price | Demand |
+|--------|-------|--------|
+| Wheat  | 120   | High   |
+| Rice   | 90    | Medium |
+| Maize  | 70    | Low    |

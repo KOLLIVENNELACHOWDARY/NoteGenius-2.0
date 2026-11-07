@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, back %}
+{% block title %}Multiple-choice quiz{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+
+{% macro option_text(question, option) -%}
+  {%- if question.tex and question.tex.get(option) %}{{ tex(question.tex[option], option) }}{% else %}{{ option }}{% endif -%}
+{%- endmacro %}
+
+{% if mode == "start" %}
+<h1>Multiple-choice quiz</h1>
+<p class="lede">Questions come from your terms, formulas, symbols, tables and key sentences.</p>
+<form method="post" data-busy="Building quiz...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row">
+    <div><label for="count">Questions</label><input id="count" type="number" name="count" min="1" max="30" value="8"></div>
+    <div><label for="difficulty">Difficulty</label>
+      <select id="difficulty" name="difficulty"><option value="easy">Easy (terms and formulas first)</option><option value="medium" selected>Medium</option><option value="hard">Hard (fill-in and symbols first)</option></select></div>
+  </div>
+  <fieldset class="chips"><legend>Question types</legend>
+    {% for key, label in types %}<label class="chip"><input type="checkbox" name="types" value="{{ key }}" checked> {{ label }}{% if key in available %} ({{ available[key] }}){% endif %}</label>{% endfor %}
+  </fieldset>
+  <div class="actions">
+    <button class="btn" type="submit" name="action" value="start_quiz">Start quiz</button>
+    <button class="btn quiet" type="submit" name="action" value="preview">Preview with answers</button>
+  </div>
+</form>
+
+{% elif mode == "preview" %}
+<h1>Quiz preview</h1>
+<ol class="qlist">
+  {% for q in questions %}
+  <li><p class="q"><span class="badge">{{ q.type }}</span> {{ q.question }}</p>
+    <ul class="plain">{% for o in q.options %}<li>{{ option_text(q, o) }}{% if o == q.answer %} <strong>(answer)</strong>{% endif %}</li>{% endfor %}</ul></li>
+  {% endfor %}
+</ol>
+<div class="actions"><a class="btn" href="{{ url_for('mcq') }}">Back</a></div>
+
+{% elif mode == "quiz" %}
+<p class="progress">Question {{ quiz.current + 1 }} of {{ quiz.questions | length }} &middot; Score {{ quiz.score }}</p>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <fieldset class="panel">
+    <legend class="quiz-q"><span class="badge">{{ question.type }}</span> {{ question.question }}</legend>
+    {% for option in question.options %}
+      {% set cls = '' %}
+      {% if answered %}{% if option == question.answer %}{% set cls = 'right' %}{% elif option == answered.chosen %}{% set cls = 'wrong' %}{% endif %}{% endif %}
+      <label class="option {{ cls }}">
+        <input type="radio" name="option" value="{{ option }}" required {{ 'disabled' if answered }} {{ 'checked' if answered and option == answered.chosen }}>
+        <span>{{ option_text(question, option) }}</span>
+      </label>
+    {% endfor %}
+    {% if answered %}
+      <p role="status"><strong>{{ 'Correct.' if answered.correct else 'Not quite. The answer is ' ~ question.answer ~ '.' }}</strong></p>
+      <p class="muted">From your notes: {{ question.context }}</p>
+    {% endif %}
+  </fieldset>
+  <div class="actions">
+    {% if answered %}
+      <button class="btn" type="submit" name="action" value="next_question">{{ 'See your score' if quiz.current + 1 == quiz.questions | length else 'Next question' }}</button>
+    {% else %}
+      <button class="btn" type="submit" name="action" value="submit_answer">Check answer</button>
+    {% endif %}
+    <button class="btn quiet" type="submit" name="action" value="quit" formnovalidate>Stop quiz</button>
+  </div>
+</form>
+
+{% elif mode == "result" %}
+<h1>Quiz complete</h1>
+<p class="score">{{ score }} / {{ total }}</p>
+<p class="lede">{{ ((score / total) * 100) | round | int }}% correct.</p>
+{% if missed %}
+<h2>Review what you missed</h2>
+<ol class="qlist">
+  {% for q in missed %}<li><p class="q">{{ q.question }}</p><p>Answer: <strong>{{ option_text(q, q.answer) }}</strong></p><p class="muted small">{{ q.context }}</p></li>{% endfor %}
+</ol>
+{% endif %}
+<form method="post" class="actions">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if missed %}<button class="btn" type="submit" name="action" value="retry_missed">Retry the {{ missed | length }} missed</button>{% endif %}
+  <a class="btn quiet" href="{{ url_for('mcq') }}">New quiz</a>
+</form>
+{% endif %}
+{% endblock %}

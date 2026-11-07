@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, table, variables, back %}
+{% block title %}Notes overview{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Notes overview</h1>
+<p class="lede">This is what NoteGenius understood. If something is missing or wrong, fix the text at the bottom and save. Every tool then uses your corrected version.</p>
+<ul class="stats">
+  <li><strong>{{ stats.sections }}</strong> sections</li><li><strong>{{ stats.definitions }}</strong> key terms</li>
+  <li><strong>{{ stats.formulas }}</strong> formulas</li><li><strong>{{ stats.tables }}</strong> tables</li>{% if stats.code %}<li><strong>{{ stats.code }}</strong> code {{ 'block' if stats.code == 1 else 'blocks' }}</li>{% endif %}<li><strong>{{ "{:,}".format(stats.words) }}</strong> words</li>
+</ul>
+
+<h2>Outline</h2>
+{% macro tree(sections) %}<ul class="outline">{% for s in sections %}<li>{{ s.title or 'Untitled' }}{% if s.children %}{{ tree(s.children) }}{% endif %}</li>{% endfor %}</ul>{% endmacro %}
+{{ tree(doc.sections) }}
+
+{% if doc.formulas %}
+<h2>Formulas found</h2>
+<div class="formula-grid">
+{% for f in doc.formulas %}
+  <div class="fcard">
+    {% if f.name %}<p class="fname">{{ f.name }}</p>{% endif %}
+    <p class="feq">{{ tex(f.latex, f.raw, True) }}</p>
+    {{ variables(f) }}
+  </div>
+{% endfor %}
+</div>
+{% endif %}
+
+{% if doc.codes %}<h2>Code found</h2>{% for sec, c in doc.codes %}<pre class="codeblock"><code>{{ c.text }}</code></pre>{% endfor %}<p class="muted small">Programs are kept as code. They are not turned into formulas, flashcards or quiz questions.</p>{% endif %}
+
+{% if doc.tables %}<h2>Tables found</h2>{% for t in doc.tables %}{{ table(t) }}{% endfor %}{% endif %}
+
+{% if doc.definitions %}
+<h2>Key terms found</h2>
+<dl class="terms">{% for d in doc.definitions %}<div><dt>{{ d.term }}</dt><dd>{{ d.meaning }}</dd></div>{% endfor %}</dl>
+{% endif %}
+
+<h2>Edit your notes</h2>
+<form method="post" data-busy="Saving...">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="text">Notes text</label>
+  <textarea id="text" class="tall mono" name="text" required>{{ text }}</textarea>
+  <p class="muted small">Formatting hints: <code># Heading</code>, <code>- bullet</code>, <code>Term: meaning</code>, <code>| a | b |</code> tables, formulas like <code>F = ma</code> on their own line or in <code>$...$</code>, and <code>where v = velocity, u = ...</code> to explain symbols.</p>
+  <div class="actions"><button class="btn" type="submit">Save changes</button></div>
+</form>
+{% endblock %}

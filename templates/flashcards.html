@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Flashcards{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Flashcards</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if cards %}
+<p class="lede">Read the front, say the answer, then flip. Cards you miss come back until you know them. Keys: <kbd>Space</kbd> flip, <kbd>→</kbd> got it, <kbd>←</kbd> review again.</p>
+<script type="application/json" id="deck-data">{{ cards | tojson }}</script>
+<div id="deck-app" data-total="{{ cards | length }}">
+  <div class="chips" id="type-chips" role="group" aria-label="Card types">
+    {% for key, n in counts.items() %}<label class="chip"><input type="checkbox" value="{{ key }}" checked> {{ labels[key] }} ({{ n }})</label>{% endfor %}
+  </div>
+  <div class="deckbar">
+    <div class="progress-track" aria-hidden="true"><div id="bar"></div></div>
+    <p id="status" class="muted" role="status">Loading cards...</p>
+  </div>
+  <button type="button" id="card" class="bigcard" aria-live="polite" aria-label="Flashcard. Press to flip."></button>
+  <div class="actions" id="rate">
+    <button type="button" class="btn quiet" id="again">Review again</button>
+    <button type="button" class="btn" id="know">Got it</button>
+  </div>
+  <div class="actions">
+    <button type="button" class="btn quiet" id="shuffle">Shuffle and restart</button>
+    <a class="btn quiet" href="{{ url_for('flashcards_csv') }}">Export for Anki (CSV)</a>
+  </div>
+  <div id="done" class="result" hidden></div>
+</div>
+<noscript><p class="flash info">Study mode needs JavaScript. Export the CSV to study in another app.</p></noscript>
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if cards %}<script src="{{ url_for('static', filename='js/flashcards.js') }}" defer></script>{% endif %}{% endblock %}

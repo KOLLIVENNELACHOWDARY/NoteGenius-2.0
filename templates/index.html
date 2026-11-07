@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Add your notes{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Turn your notes into <span class="grad">study material</span></h1>
+  <p class="lede">Paste notes or upload a file. NoteGenius finds your headings, definitions, formulas and tables, then builds summaries, flashcards, quizzes, mind maps and slides from them.</p>
+  <ul class="chips-row" aria-label="What you can make">
+    <li>🗂️ Flashcards</li><li>🧠 Mind maps</li><li>📊 Slides</li><li>📝 Summary</li><li>✅ Quizzes</li><li>🧮 Formula sheet</li><li>🔊 Listen</li>
+  </ul>
+</section>
+
+{% if notes_words %}
+<p class="flash info">You already have {{ "{:,}".format(notes_words) }} words loaded. <a href="{{ url_for('operations') }}">Open the study tools</a> or replace them below.</p>
+{% endif %}
+
+<div class="split">
+  <form class="panel" method="post" action="{{ url_for('text_input') }}" data-busy="Reading notes...">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2 class="panel-title">✍️ Paste your notes</h2>
+    <label class="sr" for="input_text">Paste your notes</label>
+    <textarea id="input_text" name="input_text" required minlength="20" placeholder="# Motion&#10;Speed is defined as distance per unit time.&#10;v = u + at&#10;where v = final velocity, u = initial velocity"></textarea>
+    <p class="muted small">Tips: write formulas as <code>E = mc^2</code>, <code>x = (-b ± sqrt(b^2-4ac)) / (2a)</code> or LaTeX in <code>$...$</code>. Tables can use <code>|</code> or tabs. <code>#</code> marks headings and <code>-</code> marks bullets.</p>
+    <div class="actions"><button class="btn" type="submit">Use these notes</button></div>
+  </form>
+
+  <form class="panel" method="post" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" data-busy="Reading file...">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2 class="panel-title">📎 Upload a file</h2>
+    <label class="sr" for="uploaded_file">Upload a file</label>
+    <input id="uploaded_file" type="file" name="uploaded_file" required accept=".pdf,.docx,.pptx,.txt,.md,.png,.jpg,.jpeg">
+    <p class="muted">Accepted: {{ allowed | join(", ") }}. Up to {{ max_mb }} MB.</p>
+    <ul class="plain small muted">
+      <li><strong>Word:</strong> headings, bullet lists, tables and Word equations are kept.</li>
+      <li><strong>PDF:</strong> headings, tables with borders, superscripts and subscripts are kept. Scans are read with text recognition.</li>
+      <li><strong>Photos:</strong> printed text works. Handwriting and typeset equations are not read reliably.</li>
+      <li><strong>Clean-up:</strong> college names, headers, footers and cover pages are left out, and programs stay as code.</li>
+    </ul>
+    <div class="actions"><button class="btn" type="submit">Upload and continue</button></div>
+  </form>
+</div>
+{% endblock %}

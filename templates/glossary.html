@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import back %}
+{% block title %}Glossary{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>Glossary</h1>
+{% if not terms %}
+<p class="flash info">No definitions were found. Write them as "Term is defined as ...", "Term: meaning" or "... is called Term". Check the <a href="{{ url_for('overview') }}">overview</a>.</p>
+{% else %}
+<label for="gfilter">Search terms</label>
+<input id="gfilter" type="search" data-filter="#glossary > div" placeholder="Type to filter">
+<dl class="terms" id="glossary">
+  {% for d in terms %}<div><dt>{{ d.term }}</dt><dd>{{ d.meaning }}{% if d.section %} <span class="muted small">({{ d.section }})</span>{% endif %}</dd></div>{% endfor %}
+</dl>
+{% endif %}
+{% endblock %}

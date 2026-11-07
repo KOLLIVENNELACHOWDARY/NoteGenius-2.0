@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tex, table, back %}
+{% set titles = {"briefing": "Briefing doc", "studyguide": "Study guide", "faq": "FAQ", "timeline": "Timeline"} %}
+{% block title %}{{ titles[kind] }}{% endblock %}
+{% block content %}
+{{ back(url_for('operations')) }}
+<h1>{{ titles[kind] }}</h1>
+<nav class="tabs noprint" aria-label="Notebook documents">
+  {% for k, label in titles.items() %}<a href="{{ url_for(k) }}"{% if k == kind %} aria-current="page" class="on"{% endif %}>{{ label }}</a>{% endfor %}
+</nav>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+{% if data %}
+<p class="lede">{{ data.title }}</p>
+
+{% if kind == 'briefing' %}
+  <section class="result"><h2>Overview</h2><ul class="plain">{% for s in data.overview %}<li>{{ s }}</li>{% endfor %}</ul></section>
+  {% for sec in data.sections %}
+  <section class="sumsec"><h2>{{ sec.title }}</h2>
+    {% if sec.points %}<ul class="plain">{% for p in sec.points %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+  </section>
+  {% endfor %}
+  {% if data.terms %}<h2>Key terms</h2><dl class="terms">{% for d in data.terms %}<div><dt>{{ d.term }}</dt><dd>{{ d.meaning }}</dd></div>{% endfor %}</dl>{% endif %}
+  {% if data.formulas %}<h2>Formulas</h2><div class="formula-grid">{% for f in data.formulas %}<div class="fcard">{% if f.name %}<p class="fname">{{ f.name }}</p>{% endif %}<p class="feq">{{ tex(f.latex, f.raw, True) }}</p></div>{% endfor %}</div>{% endif %}
+
+{% elif kind == 'studyguide' %}
+  <h2>Short-answer questions</h2>
+  <ol class="qlist">{% for q in data.short %}<li><p class="q">{{ q.q }}</p></li>{% endfor %}</ol>
+  <h2>Answer key</h2>
+  <ol class="qlist">{% for q in data.short %}<li>{% if q.tex %}<span class="feq">{{ tex(q.tex, q.a, False) }}</span>{% else %}{{ q.a }}{% endif %}</li>{% endfor %}</ol>
+  {% if data.essay %}<h2>Essay questions</h2><ol class="qlist">{% for q in data.essay %}<li>{{ q }}</li>{% endfor %}</ol>{% endif %}
+  {% if data.glossary %}<h2>Glossary</h2><dl class="terms">{% for t, m in data.glossary %}<div><dt>{{ t }}</dt><dd>{{ m }}</dd></div>{% endfor %}</dl>{% endif %}
+
+{% elif kind == 'faq' %}
+  {% if data["items"] %}<div class="faq">{% for it in data["items"] %}
+  <details class="faqitem"><summary>{{ it.q }}</summary>
+    {% if it.tex %}<p class="feq">{{ tex(it.tex, it.a, True) }}</p>{% else %}<p>{{ it.a }}</p>{% endif %}
+    {% if it.extra %}<p class="muted small">{{ it.extra }}</p>{% endif %}
+    {% if it.where %}<p class="muted small">From: {{ it.where }}</p>{% endif %}
+  </details>{% endfor %}</div>
+  {% else %}<p class="flash info">Not enough terms, formulas or key points were found to write questions from.</p>{% endif %}
+
+{% else %}
+  {% if data.events | length >= 2 %}
+  <ol class="timeline">{% for e in data.events %}<li><span class="yr">{{ e.year }}</span><div class="ev">{{ e.text }}<span class="muted small"> {{ e.section }}</span></div></li>{% endfor %}</ol>
+  {% else %}<p class="flash info">Fewer than two dated events were found. A timeline needs sentences with years, such as "The printing press was invented in 1440".</p>{% endif %}
+{% endif %}
+
+<p class="actions noprint"><button type="button" class="btn quiet" data-print>Print</button>
+  <a class="btn quiet" href="{{ url_for(kind, fmt='md') }}">Download Markdown</a></p>
+{% endif %}
+{% endblock %}
